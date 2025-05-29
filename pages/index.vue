@@ -1,6 +1,11 @@
 <script setup lang="ts">
 useHead({ title: 'Rechercher un événement' })
 const { data: events } = await useFetch('/api/events')
+const eventsLocalisation = events.value?.map((event) => event.coords)
+
+function onSelectMapEvent({ lat, lng }: { lat: number, lng: number }) {
+  console.log({ lat, lng }, 'hello')
+}
 </script>
 
 <template>
@@ -12,7 +17,7 @@ const { data: events } = await useFetch('/api/events')
       </li>
     </ul>
     <ClientOnly>
-      <Map/>
+      <Map :eventsLocalisation="eventsLocalisation" :onClickEvent="onSelectMapEvent"/>
     </ClientOnly>
   </div>
 </template>
