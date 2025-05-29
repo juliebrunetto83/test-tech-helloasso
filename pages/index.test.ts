@@ -1,11 +1,61 @@
-import { expect, test } from 'vitest';
-import { render, screen } from '@testing-library/vue';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { screen } from '@testing-library/vue';
 import HomePage from './index.vue';
 import '@testing-library/jest-dom/vitest'
+import { mockNuxtImport, renderSuspended } from '@nuxt/test-utils/runtime';
+import { anEvent } from '~/tests/fixture/events';
+import { Category } from '~/types/event';
 
 
-test('I see the page title', () => {
-	render(HomePage);
+const { mockFetch } = vi.hoisted(() => ({
+	mockFetch: vi.fn(),
+}));
 
-	expect(screen.getByRole('heading', { level: 1, name: 'Rechercher un événement' })).toBeVisible();
-});
+describe('HomePage', () => {
+	beforeEach(() => {
+		mockNuxtImport('useFetch', () => mockFetch);
+	});
+
+	afterEach(() => {
+		mockFetch.mockReset();
+	});
+
+	it('I see the page title', async () => {
+		mockFetch.mockReturnValue({
+			data: ref([{
+				title: 'Marathon de Paris',
+			}]),
+		});
+		await renderSuspended(HomePage);
+
+		expect(screen.getByRole('heading', { level: 1, name: 'Rechercher un événement' })).toBeVisible();
+	});
+
+	it('I see the list of events', async () => {
+		mockFetch.mockReturnValue({
+			data: ref([
+				anEvent({
+					id: 1,
+					title: "Marathon de Paris",
+					coords: { lat: 48.8566, lng: 2.3522 },
+					description: "Course mythique à travers les rues de la capitale. Des milliers de coureurs attendus.",
+					category: Category.SPORT,
+				}),
+				anEvent({
+					id: 2,
+					title: "Festival Jazz à Vienne",
+					coords: { lat: 45.516, lng: 4.8757 },
+					description: "Grand festival de jazz dans un théâtre antique. Ambiance estivale garantie.",
+					category: Category.SHOW,
+				})]),
+		});
+
+		await renderSuspended(HomePage);
+
+		expect(screen.getByRole('list')).toBeVisible();
+		const eventList = screen.getAllByRole('listitem');
+		expect(eventList).toHaveLength(2);
+		expect(eventList[0]).toHaveTextContent('Marathon de Paris');
+		expect(eventList[1]).toHaveTextContent('Festival Jazz à Vienne');
+	});
+})
