@@ -1,41 +1,73 @@
 <script setup lang="ts">
-import leaflet, { type LeafletMouseEvent, marker } from "leaflet";
+import leaflet, { marker } from "leaflet";
 import 'leaflet/dist/leaflet.css';
 import { onMounted } from "vue";
+import { KeyBoard } from '~/utils/keyboard';
 
-const { eventsLocalisation, onClickEvent } = defineProps<{
+const ZOOM_FOCUS_EVENT = 12;
+const ZOOM_DEFAULT = 5;
+const MAX_ZOOM = 19;
+const COORD_DEFAULT_PARIS: leaflet.LatLngExpression = [48.8566, 2.3522];
+const MAP_ID = 'map';
+
+const { eventsLocalisation, onClickEvent, eventSelectedCoords, onResetSelectedEvent } = defineProps<{
   eventsLocalisation?: Array<{
-    lat: number, lng: number,
+    title: string,
+    lat: number,
+    lng: number,
   }>,
-  onClickEvent: (marker: { lat: number, lng: number }) => void,
+  onClickEvent: (eventLocalisation: { lat: number, lng: number }) => void,
+  eventSelectedCoords?: { lat: number, lng: number },
+  onResetSelectedEvent: () => void,
 }>()
 
+let map: leaflet.Map
+let marks: Array<leaflet.Marker> = []
 
 onMounted(() => {
-  const map: leaflet.Map = leaflet
-      .map("map")
-      .setView([48.8566, 2.3522], 5);
-
+  map = leaflet
+      .map(MAP_ID)
+      .setView(COORD_DEFAULT_PARIS, ZOOM_DEFAULT);
   leaflet
-      .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+      .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: MAX_ZOOM }).addTo(map);
 
   eventsLocalisation?.map((point) => {
-    const mark = marker(point, { bubblingMouseEvents: true }).addTo(map)
-    mark.on('click', (event: LeafletMouseEvent) => onClickEvent({
-      lat: event.latlng.lat,
-      lng: event.latlng.lng,
-    }));
+    const mark = marker({ lat: point.lat, lng: point.lng }, { alt: point.title }).addTo(map)
+    marks.push(mark)
+    mark.addEventListener('keydown', function (event) {
+      if (event.originalEvent.key === KeyBoard.ENTER) {
+        mark.fire('click');
+      }
+    });
+    mark.on('click', () => onClickEvent({ lat: point.lat, lng: point.lng }))
   });
 });
+
+
+watch(
+    () => (eventSelectedCoords),
+    (newEventSelectedCoords) => {
+      if (newEventSelectedCoords) {
+        const mark = marks.find(mark =>
+            mark.getLatLng().lat === newEventSelectedCoords.lat
+            && mark.getLatLng().lng === newEventSelectedCoords.lng,
+        )
+        mark?.getElement()?.focus()
+        map.flyTo([newEventSelectedCoords.lat, newEventSelectedCoords.lng], ZOOM_FOCUS_EVENT);
+        onResetSelectedEvent()
+      }
+    },
+)
+
 </script>
 
 <template>
-  <div id="map"/>
+  <div :id="MAP_ID"/>
 </template>
 
 <style scoped>
 #map {
-  width: 50vw;
+  width: 100%;
   height: 100vh;
   overflow: hidden;
 }

@@ -6,7 +6,6 @@ import { mockNuxtImport, renderSuspended } from '@nuxt/test-utils/runtime';
 import { anEvent } from '~/tests/fixture/events';
 import { Category } from '~/types/event';
 
-
 const { mockFetch } = vi.hoisted(() => ({
 	mockFetch: vi.fn(),
 }));
@@ -58,4 +57,12 @@ describe('HomePage', () => {
 		expect(eventList[0]).toHaveTextContent('Marathon de Paris');
 		expect(eventList[1]).toHaveTextContent('Festival Jazz à Vienne');
 	});
+
+	it.todo('when i click on see event in map, focus the marker in map');
+
+	describe('Map',()=>{
+		it.todo('i see markers with label');
+		it.todo('when i click on a mark event in map, focus the event information');
+		it.todo('when Enter with focus on mark, focus the event information');
+	})
 })
