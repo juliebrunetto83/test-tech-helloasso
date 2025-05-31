@@ -3,13 +3,22 @@ import { findEventByLocalisation } from '~/utils/findEventByLocalisation';
 import type { EventDto } from '~/types/event';
 
 useHead({ title: 'Rechercher un événement' })
-const { data: events } = await useFetch('/api/events')
+const route = useRoute()
+const router = useRouter()
+
+const queryParams = computed(() => ({
+  name: route.query.name,
+}))
+
+const { data: events } = await useFetch(() => `/api/events?name=${queryParams.value.name || ''}`)
+
 const eventsLocalisation = events.value?.map((event) => ({
   ...event.coords,
   title: event.title,
 }))
 const eventsListRef = ref<HTMLUListElement | null>(null)
-const state = reactive<{ eventSelected?: EventDto }>({ eventSelected: undefined })
+const eventSelected = ref<EventDto | undefined>(undefined)
+const formFilter = ref<{ name?: string }>({name: queryParams.value.name as string || ''})
 
 function focusEvent(id: string) {
   const eventElement = eventsListRef.value?.querySelector<HTMLLIElement>(`#event-${id}`)
@@ -17,7 +26,7 @@ function focusEvent(id: string) {
 }
 
 function onResetSelectedEvent() {
-  state.eventSelected = undefined
+  eventSelected.value = undefined
 }
 
 function onSelectMapEvent(coords: { lat: number, lng: number }) {
@@ -29,7 +38,14 @@ function onSelectMapEvent(coords: { lat: number, lng: number }) {
 }
 
 function onClickEvent(event: EventDto) {
-  state.eventSelected = event
+  eventSelected.value = event
+}
+
+function onSubmit() {
+  router.replace({
+    path: route.path,
+    query: { ...route.query, name: formFilter.value.name },
+  })
 }
 
 </script>
@@ -38,6 +54,11 @@ function onClickEvent(event: EventDto) {
   <div class="searchEvent">
     <div>
       <h1>Rechercher un événement</h1>
+      <form @submit.prevent="onSubmit">
+        <label for="eventName">Nom de l'événement</label>
+        <input id="eventName" name="eventName" v-model="formFilter.name"/>
+        <button type="submit">Rechercher</button>
+      </form>
       <ul ref="eventsListRef">
         <li v-for="event in events" :key="event.title" :id="`event-${event.id.toString()}`" tabindex="-1">
           <h2>{{ event.title }}</h2>
@@ -51,7 +72,7 @@ function onClickEvent(event: EventDto) {
     </div>
     <ClientOnly>
       <Map :events="eventsLocalisation" :onClickEvent="onSelectMapEvent"
-           :eventSelectedCoords="state.eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"/>
+           :eventSelectedCoords="eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"/>
     </ClientOnly>
   </div>
 </template>
