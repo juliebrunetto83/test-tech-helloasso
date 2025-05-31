@@ -18,7 +18,6 @@ const formFilter = ref<{ name?: string }>({ name: queryParams.value.name as stri
 
 function focusEvent(id: string) {
   const eventElement = eventsListRef.value?.querySelector<HTMLLIElement>(`#event-${id}`)
-  console.log('focus element')
   eventElement?.focus()
 }
 
@@ -49,43 +48,77 @@ function onSubmit() {
 </script>
 <template>
   <div class="searchEvent">
-    <div>
-      <h1>Rechercher un événement</h1>
-      <form @submit.prevent="onSubmit">
-        <label for="eventName">Nom de l'événement</label>
-        <input id="eventName" name="eventName" v-model="formFilter.name"/>
-        <button type="submit">Rechercher</button>
-      </form>
-      <ul ref="eventsListRef">
-        <li v-for="event in events" :key="event.title" :id="`event-${event.id.toString()}`" tabindex="-1">
-          <h2>{{ event.title }}</h2>
-          <p>{{ event.description }}</p>
-          <p class="category">{{ event.category }}</p>
-          <button :aria-label="`Voir sur la carte ${event.title}`" @click="() => onClickEvent(event)">
-            Voir sur la carte
-          </button>
-        </li>
-      </ul>
-    </div>
+    <h1>Rechercher un événement</h1>
+    <form @submit.prevent="onSubmit">
+      <label for="eventName">Nom de l'événement</label>
+      <input id="eventName" name="eventName" v-model="formFilter.name"/>
+      <button type="submit">Rechercher</button>
+    </form>
+    <ul ref="eventsListRef">
+      <li v-for="event in events" :key="event.title" :id="`event-${event.id.toString()}`" tabindex="-1">
+        <h2>{{ event.title }}</h2>
+        <p>{{ event.description }}</p>
+        <p class="category">{{ event.category }}</p>
+        <button :aria-label="`Voir sur la carte ${event.title}`" @click="() => onClickEvent(event)">
+          Voir sur la carte
+        </button>
+      </li>
+    </ul>
     <ClientOnly>
       <Map :events="events || []" :onClickEvent="onSelectMapEvent"
-           :eventSelectedCoords="eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"/>
+           :eventSelectedCoords="eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"
+           class="map"/>
     </ClientOnly>
   </div>
 </template>
 
 <style scoped>
 .searchEvent {
+  height: 100dvh;
   display: grid;
+  grid-template-areas:
+  "heading heading"
+  "listEvents form"
+  "listEvents map";
   grid-template-columns: auto 50vw;
-  gap: 2rem;
+  grid-template-rows: auto auto 1fr;
+  gap: 1rem 2rem;
+  align-items: flex-start;
 
-  & li:focus {
-    border: 2px blue solid
+  & h1 {
+    grid-area: heading;
   }
 
-  & .category {
-    text-transform: capitalize;
+  & form {
+    grid-area: form;
+  }
+
+  & ul {
+    margin: 0;
+    grid-area: listEvents;
+    overflow: scroll;
+    height: 100%;
+
+    & h2 {
+      margin-top: 0;
+    }
+
+    & li {
+      margin-bottom: 2rem;
+
+      &:focus {
+        border: 2px blue solid
+      }
+    }
+
+
+    & .category {
+      text-transform: capitalize;
+    }
+  }
+
+  & .map {
+    grid-area: map;
   }
 }
 </style>
