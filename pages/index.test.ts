@@ -31,6 +31,16 @@ describe('HomePage', () => {
 		expect(screen.getByRole('heading', { level: 1, name: 'Rechercher un événement' })).toBeVisible();
 	});
 
+	it('call api to retrieve events', async () => {
+		mockFetch.mockReturnValue({
+			data: ref([]),
+		});
+		await renderSuspended(HomePage);
+
+		expect(mockFetch).toHaveBeenCalledOnce();
+		expect(mockFetch).toHaveBeenCalledWith('/api/events', expect.any(String));
+	});
+
 	it('I see the list of events', async () => {
 		mockFetch.mockReturnValue({
 			data: ref([
