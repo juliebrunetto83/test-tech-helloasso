@@ -12,16 +12,13 @@ const queryParams = computed(() => ({
 
 const { data: events } = await useFetch(() => `/api/events?name=${queryParams.value.name || ''}`)
 
-const eventsLocalisation = events.value?.map((event) => ({
-  ...event.coords,
-  title: event.title,
-}))
 const eventsListRef = ref<HTMLUListElement | null>(null)
 const eventSelected = ref<EventDto | undefined>(undefined)
-const formFilter = ref<{ name?: string }>({name: queryParams.value.name as string || ''})
+const formFilter = ref<{ name?: string }>({ name: queryParams.value.name as string || '' })
 
 function focusEvent(id: string) {
   const eventElement = eventsListRef.value?.querySelector<HTMLLIElement>(`#event-${id}`)
+  console.log('focus element')
   eventElement?.focus()
 }
 
@@ -32,6 +29,7 @@ function onResetSelectedEvent() {
 function onSelectMapEvent(coords: { lat: number, lng: number }) {
   if (!events.value) return;
   const event = findEventByLocalisation(events.value, coords)
+
   if (event) {
     focusEvent(event.id.toString())
   }
@@ -49,7 +47,6 @@ function onSubmit() {
 }
 
 </script>
-
 <template>
   <div class="searchEvent">
     <div>
@@ -63,7 +60,7 @@ function onSubmit() {
         <li v-for="event in events" :key="event.title" :id="`event-${event.id.toString()}`" tabindex="-1">
           <h2>{{ event.title }}</h2>
           <p>{{ event.description }}</p>
-          <p>{{ event.category }}</p>
+          <p class="category">{{ event.category }}</p>
           <button :aria-label="`Voir sur la carte ${event.title}`" @click="() => onClickEvent(event)">
             Voir sur la carte
           </button>
@@ -71,7 +68,7 @@ function onSubmit() {
       </ul>
     </div>
     <ClientOnly>
-      <Map :events="eventsLocalisation" :onClickEvent="onSelectMapEvent"
+      <Map :events="events || []" :onClickEvent="onSelectMapEvent"
            :eventSelectedCoords="eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"/>
     </ClientOnly>
   </div>
@@ -85,6 +82,10 @@ function onSubmit() {
 
   & li:focus {
     border: 2px blue solid
+  }
+
+  & .category {
+    text-transform: capitalize;
   }
 }
 </style>

@@ -1,7 +1,10 @@
 export enum Category {
 	SPORT = 'sport',
-	SHOW = 'spectacles'
+	SHOWS = 'spectacles',
+	WORKSHOPS = 'ateliers',
+	CONCERTS = 'concerts'
 }
+
 
 export type EventDto = {
 	"id": number;

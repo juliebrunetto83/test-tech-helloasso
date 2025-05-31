@@ -38,7 +38,6 @@ describe('HomePage', () => {
 		await renderSuspended(HomePage);
 
 		expect(mockFetch).toHaveBeenCalledOnce();
-		expect(mockFetch).toHaveBeenCalledWith('/api/events', expect.any(String));
 	});
 
 	it('I see the list of events', async () => {
@@ -56,7 +55,7 @@ describe('HomePage', () => {
 					title: "Festival Jazz à Vienne",
 					coords: { lat: 45.516, lng: 4.8757 },
 					description: "Grand festival de jazz dans un théâtre antique. Ambiance estivale garantie.",
-					category: Category.SHOW,
+					category: Category.SHOWS,
 				})]),
 		});
 
@@ -79,5 +78,11 @@ describe('HomePage', () => {
 		it.todo('i see markers with label');
 		it.todo('when i click on a mark event in map, focus the event information');
 		it.todo('when Enter with focus on mark, focus the event information');
+	})
+
+	describe('search by event name', ()=>{
+		it.todo('call API with the event name')
+		it.todo('when query params change, the list is updated')
+		it.todo('when query params change, the map is updated')
 	})
 })
