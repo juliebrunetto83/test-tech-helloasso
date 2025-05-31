@@ -16,7 +16,7 @@ function focusEvent(id: string) {
   eventElement?.focus()
 }
 
-function resetSelectedEvent() {
+function onResetSelectedEvent() {
   state.eventSelected = undefined
 }
 
@@ -40,7 +40,9 @@ function onClickEvent(event: EventDto) {
       <h1>Rechercher un événement</h1>
       <ul ref="eventsListRef">
         <li v-for="event in events" :key="event.title" :id="`event-${event.id.toString()}`" tabindex="-1">
-          {{ event.title }}
+          <h2>{{ event.title }}</h2>
+          <p>{{ event.description }}</p>
+          <p>{{ event.category }}</p>
           <button :aria-label="`Voir sur la carte ${event.title}`" @click="() => onClickEvent(event)">
             Voir sur la carte
           </button>
@@ -48,8 +50,8 @@ function onClickEvent(event: EventDto) {
       </ul>
     </div>
     <ClientOnly>
-      <Map :eventsLocalisation="eventsLocalisation" :onClickEvent="onSelectMapEvent"
-           :eventSelectedCoords="state.eventSelected?.coords" :onResetSelectedEvent="resetSelectedEvent"/>
+      <Map :events="eventsLocalisation" :onClickEvent="onSelectMapEvent"
+           :eventSelectedCoords="state.eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"/>
     </ClientOnly>
   </div>
 </template>

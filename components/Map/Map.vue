@@ -10,8 +10,8 @@ const MAX_ZOOM = 19;
 const COORD_DEFAULT_PARIS: leaflet.LatLngExpression = [48.8566, 2.3522];
 const MAP_ID = 'map';
 
-const { eventsLocalisation, onClickEvent, eventSelectedCoords, onResetSelectedEvent } = defineProps<{
-  eventsLocalisation?: Array<{
+const { events, onClickEvent, eventSelectedCoords, onResetSelectedEvent } = defineProps<{
+  events?: Array<{
     title: string,
     lat: number,
     lng: number,
@@ -31,7 +31,7 @@ onMounted(() => {
   leaflet
       .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: MAX_ZOOM }).addTo(map);
 
-  eventsLocalisation?.map((point) => {
+  events?.map((point) => {
     const mark = marker({ lat: point.lat, lng: point.lng }, { alt: point.title }).addTo(map)
     marks.push(mark)
     mark.addEventListener('keydown', function (event) {

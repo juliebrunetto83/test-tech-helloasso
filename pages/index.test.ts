@@ -21,9 +21,10 @@ describe('HomePage', () => {
 
 	it('I see the page title', async () => {
 		mockFetch.mockReturnValue({
-			data: ref([{
-				title: 'Marathon de Paris',
-			}]),
+			data: ref([
+				anEvent({
+					title: 'Marathon de Paris',
+				})]),
 		});
 		await renderSuspended(HomePage);
 
@@ -54,13 +55,17 @@ describe('HomePage', () => {
 		expect(screen.getByRole('list')).toBeVisible();
 		const eventList = screen.getAllByRole('listitem');
 		expect(eventList).toHaveLength(2);
-		expect(eventList[0]).toHaveTextContent('Marathon de Paris');
-		expect(eventList[1]).toHaveTextContent('Festival Jazz à Vienne');
+		expect(eventList[0]).toHaveTextContent(/Marathon de Paris/);
+		expect(eventList[0]).toHaveTextContent(/Course mythique à travers les rues de la capitale. Des milliers de coureurs attendus./);
+		expect(eventList[0]).toHaveTextContent(/sport/);
+		expect(eventList[1]).toHaveTextContent(/Festival Jazz à Vienne/);
+		expect(eventList[1]).toHaveTextContent(/Grand festival de jazz dans un théâtre antique. Ambiance estivale garantie./);
+		expect(eventList[1]).toHaveTextContent(/spectacles/);
 	});
 
 	it.todo('when i click on see event in map, focus the marker in map');
 
-	describe('Map',()=>{
+	describe('Map', () => {
 		it.todo('i see markers with label');
 		it.todo('when i click on a mark event in map, focus the event information');
 		it.todo('when Enter with focus on mark, focus the event information');
