@@ -1,20 +1,26 @@
 <script setup lang="ts">
 import { findEventByLocalisation } from '~/utils/findEventByLocalisation';
-import type { EventDto } from '~/types/event';
+import { Category, type EventDto } from '~/types/event';
+import { filterEmptyParams, isString } from '~/utils/queryParams';
 
 useHead({ title: 'Rechercher un événement' })
 const route = useRoute()
 const router = useRouter()
+const categories = Object.values(Category)
 
 const queryParams = computed(() => ({
-  name: route.query.name,
+  name: isString(route.query.name) ? route.query.name : '',
+  categories: isString(route.query.categories) ? [route.query.categories] : filterEmptyParams(route.query.categories),
 }))
 
-const { data: events } = await useFetch(() => `/api/events?name=${queryParams.value.name || ''}`)
+const { data: events } = await useFetch(() => `/api/events?name=${queryParams.value.name || ''}&categories=${queryParams.value.categories || ''}`)
 
 const eventsListRef = ref<HTMLUListElement | null>(null)
 const eventSelected = ref<EventDto | undefined>(undefined)
-const formFilter = ref<{ name?: string }>({ name: queryParams.value.name as string || '' })
+const formFilter = ref<{ name: string, categories: Array<string> }>({
+  name: queryParams.value.name,
+  categories: queryParams.value.categories,
+})
 
 function focusEvent(id: string) {
   const eventElement = eventsListRef.value?.querySelector<HTMLLIElement>(`#event-${id}`)
@@ -41,7 +47,11 @@ function onClickEvent(event: EventDto) {
 function onSubmit() {
   router.replace({
     path: route.path,
-    query: { ...route.query, name: formFilter.value.name },
+    query: {
+      ...route.query,
+      name: formFilter.value.name || undefined,
+      categories: formFilter.value.categories,
+    },
   })
 }
 
@@ -50,8 +60,19 @@ function onSubmit() {
   <div class="searchEvent">
     <h1>Rechercher un événement</h1>
     <form @submit.prevent="onSubmit">
-      <label for="eventName">Nom de l'événement</label>
-      <input id="eventName" name="eventName" v-model="formFilter.name"/>
+      <div>
+        <label for="eventName">Nom de l'événement</label>
+        <input id="eventName" name="eventName" v-model="formFilter.name" type="text"/>
+      </div>
+
+      <fieldset>
+        <legend>Categories</legend>
+        <div v-for="category in categories" :key="category">
+          <input type="checkbox" :id="category" :value="category" v-model="formFilter.categories"/>
+          <label class="category" :for="category">{{ category }}</label>
+        </div>
+      </fieldset>
+
       <button type="submit">Rechercher</button>
     </form>
     <ul ref="eventsListRef">
@@ -66,9 +87,12 @@ function onSubmit() {
       </li>
     </ul>
     <ClientOnly>
-      <Map :events="events || []" :onClickEvent="onSelectMapEvent"
-           :eventSelectedCoords="eventSelected?.coords" :onResetSelectedEvent="onResetSelectedEvent"
-           class="map"/>
+      <Map
+          :events="events || []"
+          :onClickEvent="onSelectMapEvent"
+          :eventSelectedCoords="eventSelected?.coords"
+          :onResetSelectedEvent="onResetSelectedEvent"
+      />
     </ClientOnly>
   </div>
 </template>
@@ -92,34 +116,31 @@ function onSubmit() {
 
   & form {
     grid-area: form;
+    padding: 1rem 1.5rem;
+    border: 1px solid #8d8d8d;
+    border-radius: 0.5rem;
+    display: grid;
+    gap: 0.75rem;
+
+    & fieldset {
+      display: flex;
+      gap: 1rem;
+      width: fit-content;
+    }
   }
 
   & ul {
-    margin: 0;
     grid-area: listEvents;
     overflow: scroll;
     height: 100%;
 
-    & h2 {
-      margin-top: 0;
-    }
-
-    & li {
-      margin-bottom: 2rem;
-
-      &:focus {
-        border: 2px blue solid
-      }
-    }
-
-
-    & .category {
-      text-transform: capitalize;
+    & li:focus {
+      border: 2px #262626 solid;
     }
   }
 
-  & .map {
-    grid-area: map;
+  & .category {
+    text-transform: capitalize;
   }
 }
 </style>

@@ -1,16 +1,20 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { EventDto } from '~/types/event';
+import { Category, EventDto } from '~/types/event';
 
 export default defineEventHandler((event) => {
 	try {
-		const { name } = getQuery(event);
+		const { name, categories } = getQuery(event);
 
 		const filePath = join(process.cwd(), "data.json");
 		const data = readFileSync(filePath, "utf-8");
-		const events = JSON.parse(data) as Array<EventDto>;
+		let events = JSON.parse(data) as Array<EventDto>;
 		if (name && typeof name === 'string') {
-			return events.filter((event) => event.title.toLowerCase().includes(name.toLowerCase()));
+			events = events.filter((event) => event.title.toLowerCase().includes(name.toLowerCase()));
+		}
+		if(categories && typeof categories === 'string') {
+			const categoriesList = categories.split(',')
+			events = events.filter((event) => categoriesList.includes(event.category));
 		}
 		return events
 	} catch (error) {

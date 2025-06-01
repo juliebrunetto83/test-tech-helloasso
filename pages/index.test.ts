@@ -90,4 +90,10 @@ describe('HomePage', () => {
 		it.todo('when query params change, the list is updated')
 		it.todo('when query params change, the map is updated')
 	})
+
+	describe('search by categories', ()=>{
+		it.todo('call API with the categories')
+		it.todo('when query params change, the list is updated')
+		it.todo('when query params change, the map is updated')
+	})
 })
