@@ -10,7 +10,6 @@ export default defineEventHandler((event) => {
 		const data = readFileSync(filePath, "utf-8");
 		const events = JSON.parse(data) as Array<EventDto>;
 		if (name && typeof name === 'string') {
-		console.log(name, 'nammmmeee', events.filter((event) => event.title.toLowerCase().includes(name.toLowerCase())))
 			return events.filter((event) => event.title.toLowerCase().includes(name.toLowerCase()));
 		}
 		return events

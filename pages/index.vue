@@ -58,7 +58,8 @@ function onSubmit() {
       <li v-for="event in events" :key="event.title" :id="`event-${event.id.toString()}`" tabindex="-1">
         <h2>{{ event.title }}</h2>
         <p>{{ event.description }}</p>
-        <p class="category">{{ event.category }}</p>
+        <div class="category">{{ event.category }}</div>
+        <p>{{ event.address }}</p>
         <button :aria-label="`Voir sur la carte ${event.title}`" @click="() => onClickEvent(event)">
           Voir sur la carte
         </button>

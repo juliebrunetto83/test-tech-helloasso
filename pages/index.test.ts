@@ -48,6 +48,7 @@ describe('HomePage', () => {
 					title: "Marathon de Paris",
 					coords: { lat: 48.8566, lng: 2.3522 },
 					description: "Course mythique à travers les rues de la capitale. Des milliers de coureurs attendus.",
+					address: '1 Place de l’Hôtel de Ville, 75004 Paris, France',
 					category: Category.SPORT,
 				}),
 				anEvent({
@@ -55,6 +56,7 @@ describe('HomePage', () => {
 					title: "Festival Jazz à Vienne",
 					coords: { lat: 45.516, lng: 4.8757 },
 					description: "Grand festival de jazz dans un théâtre antique. Ambiance estivale garantie.",
+					address: '20 Rue des Clercs, 38200 Vienne, France',
 					category: Category.SHOWS,
 				})]),
 		});
@@ -67,9 +69,12 @@ describe('HomePage', () => {
 		expect(eventList[0]).toHaveTextContent(/Marathon de Paris/);
 		expect(eventList[0]).toHaveTextContent(/Course mythique à travers les rues de la capitale. Des milliers de coureurs attendus./);
 		expect(eventList[0]).toHaveTextContent(/sport/);
+		expect(eventList[0]).toHaveTextContent(/1 Place de l’Hôtel de Ville, 75004 Paris, France/);
+
 		expect(eventList[1]).toHaveTextContent(/Festival Jazz à Vienne/);
 		expect(eventList[1]).toHaveTextContent(/Grand festival de jazz dans un théâtre antique. Ambiance estivale garantie./);
 		expect(eventList[1]).toHaveTextContent(/spectacles/);
+		expect(eventList[1]).toHaveTextContent(/20 Rue des Clercs, 38200 Vienne, France/);
 	});
 
 	it.todo('when i click on see event in map, focus the marker in map');
