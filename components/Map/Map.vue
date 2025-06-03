@@ -29,7 +29,10 @@ function addMarkerToMap(event: EventDto) {
       mark.fire('click');
     }
   });
-  mark.on('click', () => onClickEvent({ lat: event.coords.lat, lng: event.coords.lng }))
+  mark.on('click', () => {
+    map.flyTo([event.coords.lat, event.coords.lng], ZOOM_FOCUS_EVENT);
+    onClickEvent({ lat: event.coords.lat, lng: event.coords.lng })
+  })
 }
 
 onMounted(() => {
@@ -81,7 +84,6 @@ watch(
       }
     },
 )
-
 </script>
 
 <template>
